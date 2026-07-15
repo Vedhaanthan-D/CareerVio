@@ -8,6 +8,7 @@ import { supabaseAdmin } from './lib/supabaseAdmin.js';
 import { extractText } from './lib/resumeParser.js';
 import { analyzeResume } from './lib/resumeRules.js';
 import { polishFeedback } from './lib/resumeFeedback.js';
+import { isLikelyResume, VALIDATION_ERRORS } from './lib/resumeValidator.js';
 
 const app = express();
 app.use(cors());
@@ -118,6 +119,13 @@ app.post('/api/analyze-resume', requireUser, upload.single('resume'), async (req
 
   try {
     const text    = await extractText(req.file.buffer, req.file.mimetype);
+
+    const validation = isLikelyResume(text);
+    if (!validation.valid) {
+      const errorMsg = VALIDATION_ERRORS[validation.reason] || 'Invalid resume format.';
+      return res.status(400).json({ error: errorMsg });
+    }
+
     const rules   = analyzeResume(text);
     const feedback = await polishFeedback(rules);
 
