@@ -1,0 +1,15 @@
+name: Render Keep Alive
+
+on:
+  schedule:
+    # Run every 5 minutes (Note: GitHub Actions cron triggers can sometimes be slightly delayed depending on system load)
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Health Check
+        run: |
+          curl -s -I -f https://careervio-1.onrender.com/health
